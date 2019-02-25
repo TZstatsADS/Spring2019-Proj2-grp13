@@ -70,7 +70,7 @@ operator$Operator <- gsub('UNITED AIR LINES INC',replacement = "UNITED AIRLINES,
 
 # Save all cleaned data
 
-write.csv(month.data, file = "../data/accident_month.csv", row.names = TRUE)
-write.csv(airport.data, file = "../data/accident_state.csv", row.names = TRUE)
-write.csv(aircraft.make, file = "../data/accident_aircraft.csv", row.names = TRUE)
-write.csv(operator, file = "../data/accident_operator.csv", row.names = TRUE)
+write.csv(month.data, file = "../output/accident_month.csv", row.names = TRUE)
+write.csv(airport.data, file = "../output/accident_state.csv", row.names = TRUE)
+write.csv(aircraft.make, file = "../output/accident_aircraft.csv", row.names = TRUE)
+write.csv(operator, file = "../output/accident_operator.csv", row.names = TRUE)
