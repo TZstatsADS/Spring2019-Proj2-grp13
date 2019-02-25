@@ -1,0 +1,66 @@
+---
+title: "Fare_line_chart_clean"
+author: "Jingwen Wang"
+date: "2/25/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Import Data:
+```{r}
+Airfare <- read.csv("../data/Consumer_Airfare_Report__Table_1_-_Top_1_000_Contiguous_State_City-Pair_Markets.csv",header = T)
+```
+
+Data Clean:
+```{r}
+library(tidyverse)
+## Selecting Data from the most recent 10 years
+Airfare <- Airfare[order(Airfare$Year,Airfare$quarter),]
+# Add year_quater variable to the data
+Airfare$yq <- paste(Airfare$Year,Airfare$quarter,sep="-")
+Airfare <- Airfare[Airfare$Year>2007,]
+Airfare <- Airfare %>% select(city1,city2,fare,fare_lg,fare_low,yq,carrier_lg,carrier_low,Geocoded_City1,Geocoded_City2)
+```
+
+Find Lat and Log:
+```{r}
+Airfare <- subset(Airfare, city2 != "Quad Cities, IL (Metropolitan Area)")
+
+exp <- '([0-9].+)'
+temp_city1 <- regexpr(exp, Airfare$Geocoded_City1)
+info_city1 <- regmatches(Airfare$Geocoded_City1, temp_city1)
+long <- seq(1,length(info_city1))
+lati <- seq(1, length(info_city1))
+for (i in 1:length(info_city1)){
+  temp <- strsplit(info_city1[i], ", ")
+  long[i] <- as.numeric(temp[[1]][1])
+  lati[i] <- as.numeric(substr(temp[[1]][2], 1, str_length(temp[[1]][2])-1))
+}
+Airfare$long_city1 <- long
+Airfare$lati_city1 <- lati
+
+temp_city2 <- regexpr(exp, Airfare$Geocoded_City2)
+info_city2 <- regmatches(Airfare$Geocoded_City2, temp_city2)
+long2 <- seq(1,length(info_city2))
+lati2 <- seq(1, length(info_city2))
+for (i in 1:length(info_city2)){
+  temp <- strsplit(info_city2[i], ", ")
+  long2[i] <- as.numeric(temp[[1]][1])
+  lati2[i] <- as.numeric(substr(temp[[1]][2], 1, str_length(temp[[1]][2])-1))
+}
+Airfare$long_city2 <- long2
+Airfare$lati_city2 <- lati2
+```
+
+Finalize:
+```{r}
+Airfare <- Airfare %>% select(-Geocoded_City1,-Geocoded_City2)
+```
+
+Save:
+```{r}
+saveRDS(Airfare,"../output/Airfare_2008.RDS")
+```
