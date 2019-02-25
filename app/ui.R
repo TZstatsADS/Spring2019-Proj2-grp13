@@ -58,21 +58,23 @@ level_Arrive.delay <- sort(unique(aot.delay$DEST_CITY_NAME))
 #####################################################################
 
 # Map Tab
-tab.map <- tabPanel("Route Map",  
-  sidebarLayout(
-    sidebarPanel(
-      selectInput("Depart.map", label = h5("Choose a departure city"), 
-                  choices = level_Depart, 
-                  selected = 0)
-      ,
-      uiOutput("arrive.map")
-    ),
-    mainPanel(
-      leafletOutput("air_map", width="100%", height = "500px")
-    )))
+tab.map <- tabPanel("Route Map", 
+                    icon=icon("map-o"),
+                    sidebarLayout(
+                      sidebarPanel(
+                        selectInput("Depart.map", label = h5("Choose a departure city"), 
+                                    choices = level_Depart, 
+                                    selected = 0)
+                        ,
+                        uiOutput("arrive.map")
+                        ),
+                    mainPanel(
+                      leafletOutput("air_map", width="100%", height = "500px")
+                      )))
 
 # Fares Tab
-tab1<- tabPanel("Historical Average Fares",
+tab1<- tabPanel("Fares",
+                icon=icon("money-bill"),
                 sidebarLayout(
                   sidebarPanel(
                     selectInput("Depart", label = h5("Departure From"),
@@ -96,6 +98,7 @@ tab1<- tabPanel("Historical Average Fares",
 
 
 tab2<- navbarMenu("On-Time Performance",
+                  icon=icon("clock"),
                   tabPanel("On-Time Summary on Airlines",
                            sidebarLayout(
                              sidebarPanel(
@@ -114,8 +117,9 @@ tab2<- navbarMenu("On-Time Performance",
 
                    tabPanel("Cause of Delay Based on Airports",
                             mainPanel(
-                              plotlyOutput("map.delay",width = "150%",height = "600px")),
-                            tags$a(href = "https://www.transtats.bts.gov/","2000-2017 Data, Source:https://www.transtats.bts.gov/"))
+                              plotlyOutput("map.delay",width = "150%",height = "600px"))
+                            # tags$a(href = "https://www.transtats.bts.gov/","2000-2017 Data, Source:https://www.transtats.bts.gov/")
+                            )
  )
 
 
@@ -123,11 +127,15 @@ tab2<- navbarMenu("On-Time Performance",
 #####################################################################
 # Finalization:
 #####################################################################
-ui <- fluidPage(theme=shinytheme("flatly"),
+ui <- fluidPage(theme= "bootstrap.min-copy.css",
+                tags$style(type="text/css",
+                           ".shiny-output-error { visibility: hidden; }",
+                           ".shiny-output-error:before { visibility: hidden; }"
+                ),
                 # setBackgroundImage(src = "https://cdn.dribbble.com/users/150724/screenshots/1860497/126_plane.png"),
                 navbarPage(title = strong("AirPlan2.0"),
+                           tab.map,
                            tab1,
-                           tab2,
-                           tab.map))
+                           tab2))
 
 
