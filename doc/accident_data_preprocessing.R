@@ -18,7 +18,8 @@ rm(data.78.88,data.89.07,data.08.18,data.18.19)
 
 dataset <- dataset %>%
   select('AIDS.Report.Number','Local.Event.Date','Event.City',
-         'Event.State','Event.Airport','Operator','Aircraft.Make') %>%
+         'Event.State','Event.Airport','Operator','Aircraft.Make',
+         'Aircraft.Damage','Primary.Flight.Type') %>%
   mutate(Event.State = as.character(Event.State)) %>%
   filter(Event.State %in% state.abb) %>%
   mutate(Local.Event.Date = as.Date(Local.Event.Date,format = "%d-%b-%y"))
@@ -67,6 +68,20 @@ operator <- dataset %>%
 
 operator$Operator <- gsub('UNITED AIR LINES INC',replacement = "UNITED AIRLINES, INC.",operator$Operator)
 
+# Accident Type and Damage
+main.reasons <- c('ILLEGAL','PERSONAL','AIR TAXI','SCHEDULED AIR CARRIER','BUSINESS')
+
+accident.reason <- dataset %>%
+  select(AIDS.Report.Number,Aircraft.Damage,Primary.Flight.Type)
+
+accident.reason$Primary.Flight.Type <- gsub("^AIR.*","AIR TAXI",accident.reason$Primary.Flight.Type)
+accident.reason$Primary.Flight.Type <- gsub("^ILLE.*","ILLEGAL",accident.reason$Primary.Flight.Type)
+accident.reason$Primary.Flight.Type <- gsub(".*OPERATOR","SUPPLIMENTAL/COMMERCIAL",accident.reason$Primary.Flight.Type)
+accident.reason$Primary.Flight.Type <- gsub(".*HELICOPTER","HELICOPTER",accident.reason$Primary.Flight.Type)
+
+accident.reason <- accident.reason %>%
+  filter(Primary.Flight.Type %in% main.reasons & Aircraft.Damage != 'UNKNOWN') %>%
+  na.omit()
 
 # Save all cleaned data
 
@@ -74,3 +89,4 @@ write.csv(month.data, file = "../output/accident_month.csv", row.names = TRUE)
 write.csv(airport.data, file = "../output/accident_state.csv", row.names = TRUE)
 write.csv(aircraft.make, file = "../output/accident_aircraft.csv", row.names = TRUE)
 write.csv(operator, file = "../output/accident_operator.csv", row.names = TRUE)
+write.csv(accident.reason, file = "../output/accident_reason.csv", row.names = TRUE)
