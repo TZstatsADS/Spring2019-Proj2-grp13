@@ -58,15 +58,19 @@ server <- function(input, output, session) {
     )
     
     plotdata <- airport.data %>%
-      filter(year == input$year) %>%
-      mutate(full.name = state.name[which(Event.State == state.abb)])
-    
+      mutate(full.name = state.name[match(airport.data$Event.State,state.abb)]) %>%
+      filter(year == input$year) 
+     
     plotdata$hover <- with(plotdata, paste(full.name, '<br>', 
-                                           "Number of Accident", count, "<br>","Year"))
+                                           "Number of Accident", count, "<br>","Year",year))
     
-    plot_ly(z = plotdata$count, locations = plotdata$Event.State,text = ~hover,
-            type = 'choropleth', locationmode = 'USA-states',colors = 'Purples') %>%
-      layout(geo = g)
+    plot_ly(z = plotdata$count, locations = plotdata$Event.State,text = plotdata$hover,
+            type = 'choropleth', locationmode = 'USA-states') %>%
+      colorbar(title = "Number of Accident") %>%
+      layout(
+        title = 'Accident Count In Each State<br>(Hover for details)',
+        geo = g
+      )
   })
   
   output$click <- renderPrint({
