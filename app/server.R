@@ -397,16 +397,24 @@ shinyServer(function(input, output,session) {
     )
     
     plotdata <- airport.data %>%
-      filter(year == input$year)
+      mutate(full.name = state.name[match(airport.data$Event.State,state.abb)]) %>%
+      filter(year == input$year) 
     
-    plot_ly(z = plotdata$count, locations = plotdata$Event.State,
+    plotdata$hover <- with(plotdata, paste(full.name, '<br>', 
+                                           "Number of Accident", count, "<br>","Year",year))
+    
+    plot_ly(z = plotdata$count, locations = plotdata$Event.State,text = plotdata$hover,
             type = 'choropleth', locationmode = 'USA-states') %>%
-      layout(geo = g)
+      colorbar(title = "Number of Accident") %>%
+      layout(
+        title = 'Accident Count In Each State<br>(Hover for details)',
+        geo = g
+      )
   })
   
   output$click <- renderPrint({
     d <- event_data("plotly_click")
-    # if (is.null(d)) "Click on a state to view event data" else d
+    if (is.null(d)) "Click on a state to view accident number happened in it" else d
   })
   
   output$accident.month <- renderPlotly(
@@ -439,6 +447,7 @@ shinyServer(function(input, output,session) {
   output$reason <- renderPlotly(accident.reason %>%
                                   ggplot(aes(Aircraft.Damage)) +
                                   geom_bar(aes(fill = Primary.Flight.Type)) +
+                                  labs(x = "",  y="") +
                                   coord_flip())
   
   ###################################################

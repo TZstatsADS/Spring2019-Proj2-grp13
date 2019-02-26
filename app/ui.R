@@ -140,15 +140,23 @@ accident.tab <-   navbarMenu("Accident",
                                                       "Different year:",
                                                       min = 1978,
                                                       max = 2018,
-                                                      value = 2008)
+                                                      value = 2008),
+                                          width = 12
                                         ),
                                         
                                         mainPanel(
-                                          plotlyOutput("accident.year"),
-                                          verbatimTextOutput("click"))
+                                          plotlyOutput("accident.year",height="300px"
+                                          ),
+                                          width = 12,
+                                          verbatimTextOutput("click")
+                                        )
                                       ),
                                       br(),
+                                      br(),
+                                      br(),
+                                      br(),
                                       plotlyOutput("accident.month")
+                                      
                              ),
                              
                              tabPanel("Operator & Aircraft",
@@ -159,7 +167,6 @@ accident.tab <-   navbarMenu("Accident",
                              tabPanel("Flight Type & Damage",
                                       plotlyOutput("reason"))
 )
-
 
 
 tab3 <- navbarMenu("Customer Satisfaction",
