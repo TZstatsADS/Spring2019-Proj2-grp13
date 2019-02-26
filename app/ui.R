@@ -122,7 +122,35 @@ tab2<- navbarMenu("On-Time Performance",
                             )
  )
 
-
+# Accident tab
+accident.tab <-   navbarMenu("Accident",
+                             icon = icon("exclamation-triangle"),
+                             tabPanel("Year & Month",
+                                      sidebarLayout(
+                                        sidebarPanel(
+                                          sliderInput("year",
+                                                      "Different year:",
+                                                      min = 1978,
+                                                      max = 2018,
+                                                      value = 2008)
+                                        ),
+                                        
+                                        mainPanel(
+                                          plotlyOutput("accident.year"),
+                                          verbatimTextOutput("click"))
+                                      ),
+                                      br(),
+                                      plotlyOutput("accident.month")
+                             ),
+                             
+                             tabPanel("Operator & Aircraft",
+                                      plotlyOutput("accident.operator"),
+                                      br(),
+                                      plotlyOutput("aircraft")),
+                             
+                             tabPanel("Flight Type & Damage",
+                                      plotlyOutput("reason"))
+)
 
 #####################################################################
 # Finalization:
@@ -136,6 +164,7 @@ ui <- fluidPage(theme= "bootstrap.min-copy.css",
                 navbarPage(title = strong("AirPlan2.0"),
                            tab.map,
                            tab1,
-                           tab2))
+                           tab2,
+                           accident.tab))
 
 

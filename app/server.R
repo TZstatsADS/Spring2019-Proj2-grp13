@@ -53,6 +53,13 @@ Airfare <- readRDS("../output/Airfare_2008.RDS")
 aot.delay <- readRDS("../output/airline_on_time_2018.RDS")
 map.delay.plot <-readRDS("../output/Airport_delay_status.RDS")
 
+## Accident Data
+airport.data <- read.csv("../output/accident_state.csv")
+month.data <- read.csv("../output/accident_month.csv")
+aircraft.make <- read.csv("../output/accident_aircraft.csv")
+operator <- read.csv("../output/accident_operator.csv")
+accident.reason <- read.csv("../output/accident_reason.csv")
+state.names <- unique(airport.data$Event.State)
 
 ############################################################
 # Define levels
@@ -289,6 +296,60 @@ shinyServer(function(input, output,session) {
 
   # Map: Depay on Airports & Reasons
   output$map.delay <- renderPlotly(map.delay.plot)
+  
+  # Accident Statistics
+  output$accident.year <- renderPlotly({
+    # specify some map projection/options
+    g <- list(
+      scope = 'usa',
+      projection = list(type = 'albers usa'),
+      lakecolor = toRGB('white')
+    )
+    
+    plotdata <- airport.data %>%
+      filter(year == input$year)
+    
+    plot_ly(z = plotdata$count, locations = plotdata$Event.State,
+            type = 'choropleth', locationmode = 'USA-states') %>%
+      layout(geo = g)
+  })
+  
+  output$click <- renderPrint({
+    d <- event_data("plotly_click")
+    # if (is.null(d)) "Click on a state to view event data" else d
+  })
+  
+  output$accident.month <- renderPlotly(
+    month.data %>%
+      plot_ly(
+        x = ~month, 
+        y = ~count, 
+        frame = ~year, 
+        text = ~count, 
+        hoverinfo = "text",
+        type="scatter",
+        mode = "marker",
+        name = "numebr of accident"
+      ) %>% 
+      animation_opts(
+        1000, easing = "elastic", redraw = FALSE
+      )
+  )
+  
+  output$accident.operator <- renderPlotly(
+    plot_ly(operator, x = ~year, y = ~count) %>%
+      add_lines(color = ~Operator)
+  )
+  
+  output$aircraft <- renderPlotly(
+    plot_ly(aircraft.make, x = ~year, y = ~count) %>%
+      add_lines(color = ~Aircraft.Make)
+  )
+  
+  output$reason <- renderPlotly(accident.reason %>%
+                                  ggplot(aes(Aircraft.Damage)) +
+                                  geom_bar(aes(fill = Primary.Flight.Type)) +
+                                  coord_flip())
   
 })
 

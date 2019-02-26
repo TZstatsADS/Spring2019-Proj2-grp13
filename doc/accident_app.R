@@ -11,37 +11,33 @@ operator <- read.csv("../output/accident_operator.csv")
 accident.reason <- read.csv("../output/accident_reason.csv")
 state.names <- unique(airport.data$Event.State)
 
-
-accident.tab1 <- tabPanel("Each Year",
-                          sidebarLayout(
-                            sidebarPanel(
-                              sliderInput("year",
-                                          "Different year:",
-                                          min = 1978,
-                                          max = 2018,
-                                          value = 2008)
-                            ),
-                            
-                            mainPanel(
-                              plotlyOutput("accident.year"),
-                              verbatimTextOutput("click"))
-                          ),
-                          br(),
-                          plotlyOutput("accident.month")
-                          )
-
-accident.tab2 <- tabPanel("Operator & Aircraft",
-                          plotlyOutput("accident.operator"),
-                          br(),
-                          plotlyOutput("aircraft"))
-
-accident.tab3 <- tabPanel("Flight Type & Damage",
-                         plotlyOutput("reason"))
-
 accident.tab <-   navbarMenu("Accident",
-                     accident.tab1,
-                     accident.tab2,
-                     accident.tab3
+                     icon = icon("exclamation-triangle"),
+                     tabPanel("Year & Month",
+                              sidebarLayout(
+                                sidebarPanel(
+                                  sliderInput("year",
+                                              "Different year:",
+                                              min = 1978,
+                                              max = 2018,
+                                              value = 2008)
+                                ),
+                                
+                                mainPanel(
+                                  plotlyOutput("accident.year"),
+                                  verbatimTextOutput("click"))
+                              ),
+                              br(),
+                              plotlyOutput("accident.month")
+                     ),
+                     
+                     tabPanel("Operator & Aircraft",
+                              plotlyOutput("accident.operator"),
+                              br(),
+                              plotlyOutput("aircraft")),
+                     
+                     tabPanel("Flight Type & Damage",
+                              plotlyOutput("reason"))
                 )
 
 
@@ -62,16 +58,20 @@ server <- function(input, output, session) {
     )
     
     plotdata <- airport.data %>%
-      filter(year == input$year)
+      filter(year == input$year) %>%
+      mutate(full.name = state.name[which(Event.State == state.abb)])
     
-    plot_ly(z = plotdata$count, locations = plotdata$Event.State,
-            type = 'choropleth', locationmode = 'USA-states') %>%
+    plotdata$hover <- with(plotdata, paste(full.name, '<br>', 
+                                           "Number of Accident", count, "<br>","Year"))
+    
+    plot_ly(z = plotdata$count, locations = plotdata$Event.State,text = ~hover,
+            type = 'choropleth', locationmode = 'USA-states',colors = 'Purples') %>%
       layout(geo = g)
   })
   
   output$click <- renderPrint({
     d <- event_data("plotly_click")
-    # if (is.null(d)) "Click on a state to view event data" else d
+    if (is.null(d)) "Click on a state to view accident number happened in it" else d
   })
   
   output$accident.month <- renderPlotly(
@@ -104,6 +104,7 @@ server <- function(input, output, session) {
   output$reason <- renderPlotly(accident.reason %>%
     ggplot(aes(Aircraft.Damage)) +
     geom_bar(aes(fill = Primary.Flight.Type)) +
+    labs(x = "",  y="") +
     coord_flip())
   
 }
