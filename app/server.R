@@ -61,6 +61,9 @@ operator <- read.csv("../output/accident_operator.csv")
 accident.reason <- read.csv("../output/accident_reason.csv")
 state.names <- unique(airport.data$Event.State)
 
+#Customer Data
+data_customer <- read.csv("../output/combind_data.csv")
+
 ############################################################
 # Define levels
 ############################################################
@@ -122,12 +125,99 @@ shinyServer(function(input, output,session) {
     map <- map %>% addAwesomeMarkers(lng = ~lati_city2, lat = ~long_city2, icon=icons, layerId = ~city2) 
     #load lon and lat 
     flows <- gcIntermediate(select(sub_data, lati_city1, long_city1), 
-                            select(sub_data, lati_city2, long_city2), n=200 , sp = TRUE, addStartEnd = TRUE) 
+                            select(sub_data, lati_city2, long_city2), 
+                            n=200 , sp = TRUE, addStartEnd = TRUE) 
     #add polylines connecting origin and destination 
     map <- map %>% 
       addPolylines(data = flows,color = "grey",weight = 2,
                    dashArray = "5, 5") #color= colors,fillOpacity = 1 weight = data$frequency/5) 
   })
+
+  ##########################
+  # #  map click
+  ##########################
+  observeEvent(input$air_map_marker_click,{
+    temp_data <- subset(Airfare, city1 == input$Depart.map & city2 == input$air_map_marker_click$id, 
+                        select = c(city1,city2,long_city1,lati_city1,long_city2,lati_city2))
+    Depart_city = temp_data$city1[1]
+    Depart_city_ll = c(temp_data$lati_city1[1], temp_data$long_city1[1])
+    Arrive_city = temp_data$city2[2]
+    Arrive_city_ll= c(temp_data$lati_city2[1], temp_data$long_city2[1])
+    
+    flows = gcIntermediate(Depart_city_ll, Arrive_city_ll , n=200 , sp = TRUE, addStartEnd = TRUE) 
+    
+    icons <- awesomeIcons(
+      icon = 'ion-plane',
+      iconColor = 'white',
+      library = 'ion',
+      markerColor = "blue")
+    
+    ArrContent <- paste(
+      sep = "<br />",
+      "From: ",
+      Depart_city,
+      "To: ",
+      Arrive_city
+    )
+    
+    leafletProxy("air_map", session) %>%
+      clearShapes() %>% clearMarkers() %>% clearPopups() %>%
+      addPolylines(data = flows, color = "black", weight = 5) %>%
+      addAwesomeMarkers(lng = Depart_city_ll[1], lat = Depart_city_ll[2], icon = icons, 
+                        layerId = Depart_city) %>%
+      addAwesomeMarkers(lng = Arrive_city_ll[1], lat = Arrive_city_ll[2], icon = icons, 
+                        layerId = Arrive_city, label = htmltools::HTML(ArrContent), labelOptions = labelOptions(noHide = TRUE))
+    
+  })
+  
+  observeEvent(input$air_map_click, {
+    sub_data <- subset(Airfare, select = c(city1,city2,long_city1,lati_city1,long_city2,lati_city2))
+    if (input$Depart.map != "All"){
+      sub_data <- subset(sub_data, city1 == input$Depart.map)
+    }
+    if (input$Arrive.map != "All"){
+      sub_data <- subset(sub_data, city2 == input$Arrive.map)
+    }
+    
+    
+    ###
+    icons <- awesomeIcons(
+      icon = 'ion-plane',
+      iconColor = 'white',
+      library = 'ion',
+      markerColor = "blue")
+    
+    #load lon and lat 
+    flows <- gcIntermediate(select(sub_data, lati_city1, long_city1), 
+                            select(sub_data, lati_city2, long_city2), n=200 , sp = TRUE, addStartEnd = TRUE) 
+    
+    ###
+    leafletProxy("air_map", session) %>%
+      clearShapes() %>% clearMarkers() %>% clearPopups() %>%
+      addPolylines(data = flows,color = "grey",weight = 2,
+                   dashArray = "5, 5") %>%
+      addAwesomeMarkers(lng = sub_data$lati_city2, lat = sub_data$long_city2, icon=icons, layerId = sub_data$city2)
+  })
+  
+  # ######################## 
+  # # mouse_hover:
+  # ########################
+  observeEvent(input$air_map_marker_mouseover$id,{
+    markerID <- input$air_map_marker_mouseover$id
+    marker_data <- subset(Airfare, city1 == input$Depart.map & city2 == input$air_map_marker_mouseover$id, 
+                          select = c(long_city2,lati_city2))
+    lati <- marker_data$long_city2[1]
+    long <- marker_data$lati_city2[1]
+    leafletProxy("air_map") %>%
+      clearPopups() %>%
+      addPopups(lat = lati+1, lng = long, as.character(markerID))
+  })
+  
+  #observeEvent(input$air_map_marker_mouseout, {
+  #leafletProxy("air_map") %>%
+  #clearPopups()
+  #})
+  
   
   # ######################## 
   # # Fare:
@@ -350,6 +440,57 @@ shinyServer(function(input, output,session) {
                                   ggplot(aes(Aircraft.Damage)) +
                                   geom_bar(aes(fill = Primary.Flight.Type)) +
                                   coord_flip())
+  
+  ###################################################
+  # Customer Satisfication:
+  ###################################################
+  #plot for combined statistics
+  output$combineplot <- renderPlot({
+    if(length(input$carrier == 0)){
+      plot(0,xaxt='n',yaxt='n',bty='n',pch='',ylab='',xlab='')
+    }
+    if(length(input$carrier > 0)){
+      # generate an rnorm distribution and plot it
+      carr_name <- input$carrier
+      carr_row <- data_customer$airline %in% carr_name
+      carr_data <- data_customer[carr_row, c(2,3,4)]
+      ggparcoord(carr_data, columns = 2:3, groupColumn = 1)
+    }
+  })
+  
+  #plots for seperate statistics
+  output$luggageplot=renderPlot({
+    ggplot(data_customer)+
+      layer(mapping = aes(x = fct_reorder(airline,`missing.luggage.per.1000.passangers`), y =`missing.luggage.per.1000.passangers`),
+            params = list(fill = "lightblue"),
+            geom = "bar",stat = "identity", position = "identity")+
+      theme(axis.text.x = element_text(size = 8,hjust=1,vjust = 1, angle = 20))+
+      labs(x='airline')
+  })
+  
+  output$complaintplot=renderPlot({
+    ggplot(data_customer)+
+      layer(mapping = aes(x = fct_reorder(airline,`customer.complaint`), y =`customer.complaint`),
+            params = list(fill = "lightgreen"),
+            geom = "bar",stat = "identity", position = "identity")+
+      theme(axis.text.x = element_text(size = 8,hjust=1,vjust = 1, angle = 20))+
+      labs(x='airline')
+    
+  })
+  
+  output$voluntaryplot=renderPlot({
+    ggplot(data_customer)+
+      geom_point(mapping=aes(x=airline,y=Voluntary.permillage,color='voluntary'))+
+      theme(axis.text.x = element_text(size = 8,hjust=1,vjust = 1, angle = 45))+
+      labs(x='airline')
+  })
+  
+  output$involuntaryplot=renderPlot({
+    ggplot(data_customer)+
+      geom_point(mapping=aes(x=airline,y=Involuntary.permillage,color='involuntary'))+
+      theme(axis.text.x = element_text(size = 8,hjust=1,vjust = 1, angle = 45))+
+      labs(x='airline')
+  })
   
 })
 

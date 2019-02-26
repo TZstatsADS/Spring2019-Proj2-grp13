@@ -21,6 +21,10 @@ library("base64enc")
 library("ggplot2")
 library("reshape2")
 library("geosphere")
+library(GGally)
+library("parcoords")
+library("stringr")
+#devtools::install_github("timelyportfolio/parcoords")
 
 
 #####################################################################
@@ -34,6 +38,9 @@ Airfare <- readRDS("../output/Airfare_2008.RDS")
 # Delay
 aot.delay <- readRDS("../output/airline_on_time_2018.RDS")
 map.delay.plot <-readRDS("../output/Airport_delay_status.RDS")
+#
+#Customer Data
+data_customer <- read.csv("../output/combind_data.csv")
 
 
 #####################################################################
@@ -58,19 +65,20 @@ level_Arrive.delay <- sort(unique(aot.delay$DEST_CITY_NAME))
 #####################################################################
 
 # Map Tab
-tab.map <- tabPanel("Route Map", 
-                    icon=icon("map-o"),
+tab.map <- tabPanel("Route Map", icon=icon("map-o"),
                     sidebarLayout(
                       sidebarPanel(
-                        selectInput("Depart.map", label = h5("Choose a departure city"), 
-                                    choices = level_Depart, 
+                        selectInput("Depart.map", label = h5("Departure From"), 
+                                    choices = c("New York City, NY" = level_Depart.map[96], 
+                                                level_Depart[which(level_Depart.map != "New York City, NY (Metropolitan Area)")]), 
                                     selected = 0)
                         ,
                         uiOutput("arrive.map")
-                        ),
-                    mainPanel(
-                      leafletOutput("air_map", width="100%", height = "500px")
+                      ),
+                      mainPanel(
+                        leafletOutput("air_map", width="100%", height = "500px")
                       )))
+
 
 # Fares Tab
 tab1<- tabPanel("Fares",
@@ -152,6 +160,38 @@ accident.tab <-   navbarMenu("Accident",
                                       plotlyOutput("reason"))
 )
 
+
+
+tab3 <- navbarMenu("Customer Satisfaction",
+                   icon = icon("grin"),
+                   #tabpanel1
+                   tabPanel(title = "Combined Statistics",
+                            fluidRow( wellPanel(style = "overflow-y:scroll;  height: 500px; opacity: 0.9; background-color: #ffffff;",
+                                                column(width = 9, plotOutput("combineplot"),
+                                                       tags$a(href = "https://www.transtats.bts.gov/","2015-2017 Data,Source:https://www.transtats.bts.gov/")
+                                                       
+                                                ),
+                                                column(width = 3, checkboxGroupInput("carrier", "Choose a Airline:",
+                                                                                     choices = c('ALASKA AIRLINES','AMERICAN AIRLINES','DELTA AIR LINES','ENVOY AIR','EXPRESSJET AIRLINES','FRONTIER AIRLINES','HAWAIIAN AIRLINES','JETBLUE AIRWAYS','SKYWEST AIRLINES','SOUTHWEST AIRLINES','SPIRIT AIRLINES','UNITED AIRLINES'),
+                                                                                     selected = "AMERICAN AIRLINES"))
+                                                
+                                                
+                            ))),
+                   
+                   #tabpanel 2
+                   tabPanel(title = "Seperate Statistics",
+                            fluidRow( wellPanel(style = "overflow-y:scroll;  height: 500px; opacity: 0.9; background-color: #ffffff;",
+                                                column(width = 12, 
+                                                       plotOutput("luggageplot"),
+                                                       plotOutput("complaintplot"),
+                                                       plotOutput("voluntaryplot"),
+                                                       plotOutput("involuntaryplot")
+                                                       
+                                                       
+                                                ))))
+                   
+)
+
 #####################################################################
 # Finalization:
 #####################################################################
@@ -165,6 +205,7 @@ ui <- fluidPage(theme= "bootstrap.min-copy.css",
                            tab.map,
                            tab1,
                            tab2,
-                           accident.tab))
+                           accident.tab,
+                           tab3))
 
 
