@@ -133,7 +133,7 @@ tab2<- navbarMenu("On-Time Performance",
 # Accident tab
 accident.tab <-   navbarMenu("Accident",
                              icon = icon("exclamation-triangle"),
-                             tabPanel("Year & Month",
+                             tabPanel("State & Year",
                                       sidebarLayout(
                                         sidebarPanel(
                                           sliderInput("year",
