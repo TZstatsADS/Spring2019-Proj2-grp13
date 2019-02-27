@@ -474,7 +474,7 @@ shinyServer(function(input, output,session) {
     ggplot(data_customer)+
       layer(mapping = aes(x = fct_reorder(airline,`missing.luggage.per.1000.passangers`), y =`missing.luggage.per.1000.passangers`),
             params = list(fill = "pink"),
-            geom = "bar",stat = "identity", position = "identity")+
+            geom = "bar",stat = "identity", position = "identity")+theme_bw()+
       theme(axis.text.x = element_text(size = 8,hjust=1,vjust = 1, angle = 20),panel.border = element_blank())+
       labs(x='airline')
   })
@@ -483,7 +483,7 @@ shinyServer(function(input, output,session) {
     ggplot(data_customer)+
       layer(mapping = aes(x = fct_reorder(airline,`customer.complaint`), y =`customer.complaint`),
             params = list(fill = "lightblue"),
-            geom = "bar",stat = "identity", position = "identity")+
+            geom = "bar",stat = "identity", position = "identity")+theme_bw()+
       theme(axis.text.x = element_text(size = 8,hjust=1,vjust = 1, angle = 20),panel.border = element_blank())+
       labs(x='airline')
     
@@ -491,14 +491,14 @@ shinyServer(function(input, output,session) {
   
   output$voluntaryplot=renderPlot({
     ggplot(data_customer,aes(x=airline,y=All.permillage))+
-      geom_point(color="lightgreen",size=5)+
+      geom_point(color="lightgreen",size=5)+theme_bw()+
       theme(axis.text.x = element_text(size = 8,hjust=1,vjust = 1, angle = 45),panel.border = element_blank())+
       labs(x='airline')
   })
   
   output$involuntaryplot=renderPlot({
     ggplot(data_customer,aes(x=airline,y=Involuntary.permillage))+
-      geom_point(color='grey',size=5)+
+      geom_point(color='grey',size=5)+theme_bw()+
       theme(axis.text.x = element_text(size = 8,hjust=1,vjust = 1, angle = 45),panel.border = element_blank())+
       labs(x='airline')
   })
