@@ -23,9 +23,10 @@ Description: Original dataset includes accident data from FAA Accident and Incid
 of accidents from 1978 to 2018. For each record, details such as Event.Local.Date, Event.State, Damage Levels and so on are also included. In this project, the processed dataset mainly focus on the following aspects: Time(include year and month), State, Operator, Aircraft Maker, Damage level and Flight Type.
 
 **Customer Satisfaction**:
+
 Link:https://www.transportation.gov/airconsumer/air-travel-consumer-reports-2018
 
-Description: original dataset inclues missing luggages number, comsumer complaints, Involuntary and voluntary denied boarding numbers by most common 12 airlines in the US for each month in 2018. We use mainly the data from the second half of the year 2018.
+Description: original dataset covers the air travel consumer report from every month in Year 2018. For each month report, missing luggages number, comsumer complaints, Involuntary and voluntary denied boarding numbers by most common 12 airlines in the US are included. In this project, we mainly use the data from the second half of 2018.
 
 
 
