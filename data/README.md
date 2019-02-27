@@ -17,7 +17,10 @@ Description: original dataset includes departure and arrival statistics (schedul
 
 
 
+**Customer Satisfaction**:
+Link:https://www.transportation.gov/airconsumer/air-travel-consumer-reports-2018
 
+Description: original dataset inclues missing luggages number, comsumer complaints, Involuntary and voluntary denied boarding numbers by most common 12 airlines in the US for each month in 2018. We use mainly the data from the second half of the year 2018.
 
 
 
