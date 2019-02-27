@@ -19,7 +19,12 @@ Concerning about planning your trip wisely? AirPlan 2.0 will help our users to e
 ## Contribution Statement: 
 All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement. 
 
-**Yue Zhang** mainly focus on accident panel, including accident data preprocseeing and explorative data analysis of accident data.
+**Chao Yin** works on On-time Performance Panel and Summary Panel, including cleaning data, examing patterns, and designing plot outputs. 
+
+**Jingwen Wang** plots Trend Line Chart part in the Fares Panel, works on Shiny Design of the Fares and On-time Performance Channel, and designs the Interactive Map.
+
+
+**Yue Zhang** mainly focus on the Accident Panel, including accident data preprocseeing and explorative data analysis of accident data.
 
 ## Project Demonstration:
 
