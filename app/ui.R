@@ -30,18 +30,35 @@ library("stringr")
 #####################################################################
 # Read Data:
 #####################################################################
-# Fares:
+############################################################ 
+# Read Data
+############################################################ 
+## Map:
+# Map:
+Air_map <- readRDS("../output/Airline_map.RDS")
+Air_map <- na.omit(Air_map)
+Air_map$city1 <- as.factor(Air_map$city1)
+Air_map$city2 <- as.factor(Air_map$city2)
+
+## Fares:
 carrierLg <- data.frame(read.csv('../data/carrier_lg.csv', header = TRUE))
 carrierLow <- data.frame(read.csv('../data/carrier_low.csv', header = TRUE))
 Airfare <- readRDS("../output/Airfare_2008.RDS")
-# 
-# Delay
+
+## Delay
 aot.delay <- readRDS("../output/airline_on_time_2018.RDS")
 map.delay.plot <-readRDS("../output/Airport_delay_status.RDS")
-#
+
+## Accident Data
+airport.data <- read.csv("../output/accident_state.csv")
+month.data <- read.csv("../output/accident_month.csv")
+aircraft.make <- read.csv("../output/accident_aircraft.csv")
+operator <- read.csv("../output/accident_operator.csv")
+accident.reason <- read.csv("../output/accident_reason.csv")
+state.names <- unique(airport.data$Event.State)
+
 #Customer Data
 data_customer <- read.csv("../output/combind_data.csv")
-
 
 #####################################################################
 # Define Levels:
@@ -52,8 +69,8 @@ level_Depart <- levels(Airfare$city1)
 level_Arrive <- levels(Airfare$city2)
 
 # Route Map:
-level_Depart.map <- levels(Airfare$city1)
-level_Arrive.map <- levels(Airfare$city2)
+level_Depart.map <- levels(unique(Air_map$city1))
+level_Arrive.map <- levels(unique(Air_map$city2))
 
 # Delay:
 level_Depart.delay <- sort(unique(aot.delay$ORIGIN_CITY_NAME))
@@ -69,12 +86,12 @@ tab.map <- tabPanel("Route Map", icon=icon("map-o"),
                     sidebarLayout(
                       sidebarPanel(
                         selectInput("Depart.map", label = h5("Departure From"), 
-                                    choices = c("New York City, NY" = level_Depart.map[96], 
-                                                level_Depart[which(level_Depart.map != "New York City, NY (Metropolitan Area)")]), 
+                                    choices = level_Depart.map, 
                                     selected = 0)
                         ,
                         uiOutput("arrive.map")
                       ),
+                      # Show two panels
                       mainPanel(
                         leafletOutput("air_map", width="100%", height = "500px")
                       )))
@@ -85,50 +102,51 @@ tab1<- tabPanel("Fares",
                 icon=icon("money-bill"),
                 sidebarLayout(
                   sidebarPanel(
-                    selectInput("Depart", label = h5("Departure From"),
+                    selectInput("Depart", label = h5("City 1"),
                                 choices = c("All"="All",level_Depart),
                                 selected = 0),
                     width = 3,
                     uiOutput("arrive")
                   ),
-
+                  
                   # Show the panel
                   mainPanel(
-
+                    
                     plotlyOutput("distPlot.fare"),
                     br(),
                     br(),
                     plotlyOutput("LgCarrier"),
                     br(),
-                    plotlyOutput("LowCarrier")
-                  )
-                ))
+                    plotlyOutput("LowCarrier"))),
+                tags$a(href = "https://www.bts.gov/air-fares","2018 Source:https://www.bts.gov/air-fares"))
 
+## On-time Performance Tab
 
 tab2<- navbarMenu("On-Time Performance",
                   icon=icon("clock"),
                   tabPanel("On-Time Summary on Airlines",
                            sidebarLayout(
                              sidebarPanel(
-                                selectInput("Depart.delay", label = h5("Departure From"),
-                                            choices = c("All" = "All",level_Depart.delay),
+                               selectInput("Depart.delay", label = h5("Departure From"),
+                                           choices = c("All" = "All",level_Depart.delay),
                                            selected = 0),
-                                width = 3,
-                                uiOutput("arrive_delay")
-                                ),
-                              # Show One Panel
-                              mainPanel(
-                                plotlyOutput("bubblePlot"))
-                              ),
-                            style = "overflow-y:scroll; height: 600px; opacity: 0.9; background-color: #ffffff;")
-                   ,
-
-                   tabPanel("Cause of Delay Based on Airports",
-                            mainPanel(
-                              plotlyOutput("map.delay",width = "150%",height = "600px"))
-                            # tags$a(href = "https://www.transtats.bts.gov/","2000-2017 Data, Source:https://www.transtats.bts.gov/")
-                            )
- )
+                               width = 3,
+                               uiOutput("arrive_delay")
+                             ),
+                             # Show One Panel
+                             mainPanel(
+                               plotlyOutput("bubblePlot"))
+                           ),
+                           tags$a(href = "https://transtats.bts.gov/ONTIME/","2018 Source:https://transtats.bts.gov/ONTIME/"),
+                           style = "overflow-y:scroll; height: 600px; opacity: 0.9; background-color: #ffffff;")
+                  ,
+                  
+                  tabPanel("Cause of Delay Based on Airports",
+                           mainPanel(
+                             plotlyOutput("map.delay",width = "150%",height = "600px"),
+                             tags$a(href = "https://transtats.bts.gov/ONTIME/","2018 Source:https://transtats.bts.gov/ONTIME/")
+                           )
+                  ))
 
 # Accident tab
 accident.tab <-   navbarMenu("Accident",
@@ -168,6 +186,7 @@ accident.tab <-   navbarMenu("Accident",
                                       plotlyOutput("reason"))
 )
 
+## Customer Satisfication Tab
 
 tab3 <- navbarMenu("Customer Satisfaction",
                    icon = icon("grin"),
@@ -178,7 +197,7 @@ tab3 <- navbarMenu("Customer Satisfaction",
                                                        tags$a(href = "https://www.transtats.bts.gov/","2015-2017 Data,Source:https://www.transtats.bts.gov/")
                                                        
                                                 ),
-                                                column(width = 3, checkboxGroupInput("carrier", "Choose a Airline:",
+                                                column(width = 3, checkboxGroupInput("carrier", "Choose an Airline:",
                                                                                      choices = c('ALASKA AIRLINES','AMERICAN AIRLINES','DELTA AIR LINES','ENVOY AIR','EXPRESSJET AIRLINES','FRONTIER AIRLINES','HAWAIIAN AIRLINES','JETBLUE AIRWAYS','SKYWEST AIRLINES','SOUTHWEST AIRLINES','SPIRIT AIRLINES','UNITED AIRLINES'),
                                                                                      selected = "AMERICAN AIRLINES"))
                                                 

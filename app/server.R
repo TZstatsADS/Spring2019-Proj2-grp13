@@ -44,6 +44,13 @@ library("geosphere")
 ############################################################ 
 # Read Data
 ############################################################ 
+## Map:
+# Map:
+Air_map <- readRDS("../output/Airline_map.RDS")
+Air_map <- na.omit(Air_map)
+Air_map$city1 <- as.factor(Air_map$city1)
+Air_map$city2 <- as.factor(Air_map$city2)
+
 ## Fares:
 carrierLg <- data.frame(read.csv('../data/carrier_lg.csv', header = TRUE))
 carrierLow <- data.frame(read.csv('../data/carrier_low.csv', header = TRUE))
@@ -72,8 +79,8 @@ level_Depart <- levels(Airfare$city1)
 level_Arrive <- levels(Airfare$city2)
 
 # Route Map:
-level_Depart.map <- levels(Airfare$city1)
-level_Arrive.map <- levels(Airfare$city2)
+level_Depart.map <- levels(unique(Air_map$city1))
+level_Arrive.map <- levels(unique(Air_map$city2))
 
 # Delay:
 level_Depart.delay <- sort(unique(aot.delay$ORIGIN_CITY_NAME))
@@ -91,7 +98,7 @@ shinyServer(function(input, output,session) {
     if (input$Depart.map == "All"){
       level_Arrive_new.map <- level_Arrive.map
     }else{
-      aot_Original_city <- subset(Airfare, city1 == input$Depart.map)
+      aot_Original_city <- subset(Air_map, city1 == input$Depart.map)
       level_Arrive_new.map <- sort(level_Arrive.map[unique(aot_Original_city$city2)])
     }
     selectInput("Arrive.map", label = h5("Arriving At"),
@@ -102,7 +109,7 @@ shinyServer(function(input, output,session) {
   # Map:
   output$air_map <- renderLeaflet({
     ###
-    sub_data <- subset(Airfare, select = c(city1,city2,long_city1,lati_city1,long_city2,lati_city2))
+    sub_data <- Air_map
     if (input$Depart.map != "All"){
       sub_data <- subset(sub_data, city1 == input$Depart.map)
     }
@@ -122,96 +129,18 @@ shinyServer(function(input, output,session) {
       markerColor = "blue")
     
     #add marker for dest in the map
-    map <- map %>% addAwesomeMarkers(lng = ~lati_city2, lat = ~long_city2, icon=icons, layerId = ~city2) 
+    map <- map %>% addAwesomeMarkers(lng = ~long_city2, lat = ~lati_city2, icon=icons, layerId = ~city2) 
     #load lon and lat 
-    flows <- gcIntermediate(select(sub_data, lati_city1, long_city1), 
-                            select(sub_data, lati_city2, long_city2), 
+    flows <- gcIntermediate(select(sub_data, long_city1, lati_city1), 
+                            select(sub_data, long_city2, lati_city2), 
                             n=200 , sp = TRUE, addStartEnd = TRUE) 
     #add polylines connecting origin and destination 
     map <- map %>% 
       addPolylines(data = flows,color = "grey",weight = 2,
                    dashArray = "5, 5") #color= colors,fillOpacity = 1 weight = data$frequency/5) 
   })
+  
 
-  ##########################
-  # #  map click
-  ##########################
-  observeEvent(input$air_map_marker_click,{
-    temp_data <- subset(Airfare, city1 == input$Depart.map & city2 == input$air_map_marker_click$id, 
-                        select = c(city1,city2,long_city1,lati_city1,long_city2,lati_city2))
-    Depart_city = temp_data$city1[1]
-    Depart_city_ll = c(temp_data$lati_city1[1], temp_data$long_city1[1])
-    Arrive_city = temp_data$city2[2]
-    Arrive_city_ll= c(temp_data$lati_city2[1], temp_data$long_city2[1])
-    
-    flows = gcIntermediate(Depart_city_ll, Arrive_city_ll , n=200 , sp = TRUE, addStartEnd = TRUE) 
-    
-    icons <- awesomeIcons(
-      icon = 'ion-plane',
-      iconColor = 'white',
-      library = 'ion',
-      markerColor = "blue")
-    
-    ArrContent <- paste(
-      sep = "<br />",
-      "From: ",
-      Depart_city,
-      "To: ",
-      Arrive_city
-    )
-    
-    leafletProxy("air_map", session) %>%
-      clearShapes() %>% clearMarkers() %>% clearPopups() %>%
-      addPolylines(data = flows, color = "black", weight = 5) %>%
-      addAwesomeMarkers(lng = Depart_city_ll[1], lat = Depart_city_ll[2], icon = icons, 
-                        layerId = Depart_city) %>%
-      addAwesomeMarkers(lng = Arrive_city_ll[1], lat = Arrive_city_ll[2], icon = icons, 
-                        layerId = Arrive_city, label = htmltools::HTML(ArrContent), labelOptions = labelOptions(noHide = TRUE))
-    
-  })
-  
-  observeEvent(input$air_map_click, {
-    sub_data <- subset(Airfare, select = c(city1,city2,long_city1,lati_city1,long_city2,lati_city2))
-    if (input$Depart.map != "All"){
-      sub_data <- subset(sub_data, city1 == input$Depart.map)
-    }
-    if (input$Arrive.map != "All"){
-      sub_data <- subset(sub_data, city2 == input$Arrive.map)
-    }
-    
-    
-    ###
-    icons <- awesomeIcons(
-      icon = 'ion-plane',
-      iconColor = 'white',
-      library = 'ion',
-      markerColor = "blue")
-    
-    #load lon and lat 
-    flows <- gcIntermediate(select(sub_data, lati_city1, long_city1), 
-                            select(sub_data, lati_city2, long_city2), n=200 , sp = TRUE, addStartEnd = TRUE) 
-    
-    ###
-    leafletProxy("air_map", session) %>%
-      clearShapes() %>% clearMarkers() %>% clearPopups() %>%
-      addPolylines(data = flows,color = "grey",weight = 2,
-                   dashArray = "5, 5") %>%
-      addAwesomeMarkers(lng = sub_data$lati_city2, lat = sub_data$long_city2, icon=icons, layerId = sub_data$city2)
-  })
-  
-  # ######################## 
-  # # mouse_hover:
-  # ########################
-  observeEvent(input$air_map_marker_mouseover$id,{
-    markerID <- input$air_map_marker_mouseover$id
-    marker_data <- subset(Airfare, city1 == input$Depart.map & city2 == input$air_map_marker_mouseover$id, 
-                          select = c(long_city2,lati_city2))
-    lati <- marker_data$long_city2[1]
-    long <- marker_data$lati_city2[1]
-    leafletProxy("air_map") %>%
-      clearPopups() %>%
-      addPopups(lat = lati+1, lng = long, as.character(markerID))
-  })
   
   #observeEvent(input$air_map_marker_mouseout, {
   #leafletProxy("air_map") %>%
@@ -229,9 +158,9 @@ shinyServer(function(input, output,session) {
       level_Arrive_new <- level_Arrive
     }else{
       aot_Original_city <- subset(Airfare, city1 == input$Depart)
-      level_Arrive_new <- level_Arrive[unique(aot_Original_city$city2)]
+      level_Arrive_new <- sort(level_Arrive[unique(aot_Original_city$city2)])
     }
-    selectInput("Arrive", label = h5("Arriving At"),
+    selectInput("Arrive", label = h5("City 2"),
                 choices = c("All" = "All", level_Arrive_new)
     )
   })
@@ -387,7 +316,9 @@ shinyServer(function(input, output,session) {
   # Map: Depay on Airports & Reasons
   output$map.delay <- renderPlotly(map.delay.plot)
   
+  ############################################################
   # Accident Statistics
+  ############################################################
   output$accident.year <- renderPlotly({
     # specify some map projection/options
     g <- list(
