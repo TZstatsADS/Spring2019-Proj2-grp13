@@ -27,6 +27,9 @@ All team members contributed equally in all stages of this project. All team mem
 
 **Yue Zhang** mainly focus on the Accident Panel, including accident data preprocseeing and explorative data analysis of accident data.
 
+
+**Xishi Chen** works on Customer Satisfaction Panel with Yu Yao together, including collecting, cleaning, manipulating and visualising data on Shiny.
+
 ## Project Demonstration:
 
 + Interactive Map:
