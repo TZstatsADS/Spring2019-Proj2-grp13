@@ -17,33 +17,41 @@ Concerning about planning your trip wisely? AirPlan 2.0 will help our users to e
 	+ Zhang, Yue yz3383@columbia.edu
 	+ Chen, Xishi xc2455@columbia.edu
 
-+ **Contribution statement**: ([default](doc/a_note_on_contributions.md)) All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement. 
++ **Contribution statement**: 
+All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement. 
 
+Yue Zhang mainly focus on accident panel, including accident data preprocseeing and explorative data analysis of accident data.
 
 **Demonstration**:
 
 + Interactive Map:
 
-<img src="doc/figs/interactive_map.png" width="700">
+<p align="center">
+  <img src="doc/figs/interactive_map.png" width="700">
 
 + Fares:
 
+<p align="center">
 <img src="doc/figs/Fares.png" width="700">
 
 + On-time Performance:
 
+<p align="center">
 <img src="doc/figs/On_time.png" width="700">
 
-+ Accident Status:
++ Accident Statistics:
 
+<p align="center">
 <img src="doc/figs/Accident.png" width="700">
 
 + Customer Satisfaction:
 
+<p align="center">
 <img src="doc/figs/Customer_Sat.png" width="700">
 
 + Summary:
 
+<p align="center">
 <img src="doc/figs/Summary.png" width="700">
 
 
