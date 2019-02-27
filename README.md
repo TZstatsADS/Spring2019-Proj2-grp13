@@ -19,6 +19,31 @@ Concerning about planning your trip wisely? AirPlan 2.0 will help our users to e
 
 + **Contribution statement**: ([default](doc/a_note_on_contributions.md)) All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement. 
 
+
+**Demonstration**:
+
++ Interactive Map:
+
+<img src="doc/figs/interactive_map.png" width="700">
+
++ Fares:
+
+<img src="doc/figs/Fares.png" width="700">
+
++ On-time Performance:
+
+<img src="doc/figs/On_time.png" width="700">
+
++ Accident Status:
+
+<img src="doc/figs/Accident.png" width="700">
+
++ Customer Satisfaction:
+
+<img src="doc/figs/Customer_Sat.png" width="700">
+
+
+
 Following [suggestions](http://nicercode.github.io/blog/2013-04-05-projects/) by [RICH FITZJOHN](http://nicercode.github.io/about/#Team) (@richfitz). This folder is orgarnized as follows.
 
 ```
