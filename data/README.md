@@ -15,7 +15,12 @@ Link: https://transtats.bts.gov/ONTIME/
 
 Description: original dataset includes departure and arrival statistics (scheduled departure time, actual departure time, scheduled elapse time, departure delay, wheels-off time and taxi-out time) by airport and airline; airborne time, cancellation and diversion by airport and airline. We used quaterly collected data during Year 2018. 
 
+**Accident Data**:
 
+Link: https://www.asias.faa.gov/apex
+
+Description: Original dataset includes accident data from FAA Accident and Incident Data System(AIDS). Covers 102,946 records 
+of accidents from 1978 to 2018. For each reords, the dataset includes details such as Event.Local.Date, Event.State, Damage Levels and so on. In this project, the processed dataset focus on the following aspects: Time(include year and month), State, Operator, Aircraft Maker, Damage level and Flight Type.
 
 
 
