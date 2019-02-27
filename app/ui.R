@@ -24,6 +24,7 @@ library(GGally)
 #library("parcoords")
 library("stringr")
 library(htmltools)
+library(vistime)
 #devtools::install_github("timelyportfolio/parcoords")
 
 

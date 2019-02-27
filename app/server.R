@@ -43,6 +43,7 @@ library(GGally)
 #library("parcoords")
 library("stringr")
 library(htmltools)
+library(vistime)
 #devtools::install_github("timelyportfolio/parcoords")
 
 ############################################################ 
@@ -227,7 +228,7 @@ shinyServer(function(input, output,session) {
       start = aot_Basic$start,
       end = aot_Basic$end
     )
-    vistime(data, groups="Name", events="Name", title="Cheapest Carrier")
+    vistime::vistime(data, groups="Name", events="Name", title="Cheapest Carrier")
   })
 
   ########################
