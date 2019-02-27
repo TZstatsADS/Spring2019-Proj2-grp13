@@ -20,7 +20,7 @@ Description: original dataset includes departure and arrival statistics (schedul
 Link: https://www.asias.faa.gov/apex
 
 Description: Original dataset includes accident data from FAA Accident and Incident Data System(AIDS). Covers 102,946 records 
-of accidents from 1978 to 2018. For each reords, the dataset includes details such as Event.Local.Date, Event.State, Damage Levels and so on. In this project, the processed dataset focus on the following aspects: Time(include year and month), State, Operator, Aircraft Maker, Damage level and Flight Type.
+of accidents from 1978 to 2018. For each record, details such as Event.Local.Date, Event.State, Damage Levels and so on are also included. In this project, the processed dataset mainly focus on the following aspects: Time(include year and month), State, Operator, Aircraft Maker, Damage level and Flight Type.
 
 
 
