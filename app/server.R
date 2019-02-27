@@ -71,6 +71,9 @@ state.names <- unique(airport.data$Event.State)
 #Customer Data
 data_customer <- read.csv("../output/combind_data.csv")
 
+## Summary
+arln_summ <-readRDS('../output/Airline_summary.RDS')
+
 ############################################################
 # Define levels
 ############################################################
@@ -85,6 +88,10 @@ level_Arrive.map <- levels(unique(Air_map$city2))
 # Delay:
 level_Depart.delay <- sort(unique(aot.delay$ORIGIN_CITY_NAME))
 level_Arrive.delay <- sort(unique(aot.delay$DEST_CITY_NAME))
+
+# Summary:
+orig <- arln_summ %>% select(ORIGIN_CITY_NAME) %>% unique() 
+dest <- arln_summ %>% select(DEST_CITY_NAME) %>% unique() 
 
 ############################################################
 # Shiny Server
@@ -433,6 +440,69 @@ shinyServer(function(input, output,session) {
       theme(axis.text.x = element_text(size = 8,hjust=1,vjust = 1, angle = 45),panel.border = element_blank())+
       labs(x='airline')
   })
-  
-})
 
+ ###################################################
+ # Summary:
+ ###################################################
+
+output$dest <- renderUI(
+  {
+    if(input$Orig=='All'){
+      dest_city <- dest$DEST_CITY_NAME
+    }else{
+      dest_city <- arln_summ %>%
+        filter(ORIGIN_CITY_NAME == input$Orig) %>%
+        select(DEST_CITY_NAME)
+      dest_city <- dest_city$DEST_CITY_NAME %>% sort()
+    }
+    selectInput('Dest', label = h5('Destination City'),
+                choices = c('All'='All', dest_city))
+  }
+)
+
+output$summary <- renderPlotly({
+  summ <- arln_summ
+  if(input$Orig != 'All') summ <- summ %>% filter(ORIGIN_CITY_NAME == input$Orig)
+  if(input$Dest != 'All') summ <- summ %>% filter(DEST_CITY_NAME == input$Dest)
+  
+  summ_plot <- summ %>%
+    select(-ORIGIN_CITY_NAME, -DEST_CITY_NAME) %>%
+    group_by(Carrier) %>%
+    dplyr::summarise_all(mean, na.rm=TRUE) %>%
+    mutate_if(function(x) is.numeric(x)&length(x)>1, function(x) exp((max(x)-x)/(max(x)-min(x)))) %>%
+    mutate_if(function(x) is.numeric(x)&length(x)==1, function(x) 1.0) %>%
+    mutate_at(input$Con, function(x) x*input$Wgt) %>%
+    plot_ly(x =~ARR_DELAY, y=~Carrier, type = 'bar', orientation = 'h', 
+            name = 'Arrival Delay', 
+            marker = list(color = 'rgba(102,194,165, 0.8)',
+                          line = list(color = 'rgba(102,194,165, 1.0)',
+                                      width = 3)),
+            hoverinfo = 'name') %>%
+    add_trace(x =~DEP_DELAY, name = 'Departure Delay', 
+              marker = list(color = 'rgba(252,141,98, 0.8)',
+                            line = list(color = 'rgba(252,141,98, 1.0)',
+                                        width = 3))) %>%
+    add_trace(x =~`Missing Luggage`, name = 'Missing Luggage',
+              marker = list(color = 'rgba(141,160,203, 0.8)',
+                            line = list(color = 'rgba(141,160,203, 1.0)',
+                                        width = 3))) %>%
+    add_trace(x =~`Customer Complaint`, name = 'Customer Complaint',
+              marker = list(color = 'rgba(231,138,195, 0.8)',
+                            line = list(color = 'rgba(231,138,195, 1.0)',
+                                        width = 3))) %>%
+    add_trace(x =~`Involuntary Denied Boarding`, name = 'Involuntary Denied Boarding',
+              marker = list(color = 'rgba(166,216,84, 0.8)',
+                            line = list(color = 'rgba(166,216,84, 1.0)',
+                                        width = 3))) %>%
+    add_trace(x =~`All Denied Boarding`, name = 'All Denied Boarding',
+              marker = list(color = 'rgba(255,217,47, 0.8)',
+                            line = list(color = 'rgba(255,217,47, 1.0)',
+                                        width = 3))) %>%
+    layout(barmode = 'stack',
+           title = 'Carrier Performance',
+           xaxis = list(title = ''),
+           yaxis = list(title =''))
+}
+)
+
+})

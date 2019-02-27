@@ -1,0 +1,271 @@
+---
+title: "test"
+author: "Chao Yin"
+date: "February 21, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load packages, message=FALSE}
+library(tidyverse)
+library(data.table)
+library(plotly)
+library(formattable)
+library(plyr)
+```
+
+```{r read data}
+if(file.exists('output/airline_on_time.RDS')){
+  aot <- readRDS('output/airline_on_time.RDS')
+}else{
+  files <- list.files(path='data', pattern='*.csv')
+  aot <- do.call(rbind, lapply(files, function(x) read.csv(paste('data/', x, sep=''),
+                                                           stringsAsFactors=FALSE)))
+  saveRDS(aot, 'output/airline_on_time.RDS')
+}
+apt <- read.csv(url('https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat'),
+                header = FALSE)
+```
+
+```{r aot 2018}
+aot_2018 <- aot %>% filter(YEAR==2018 | (YEAR==2017 & MONTH ==12))
+saveRDS(aot_2018, 'output/airline_on_time_2018.RDS')
+```
+
+```{r carrier data}
+if(file.exists('output/airline_on_time_carrier.RDS')){
+  aot_carr <- readRDS('output/airline_on_time_carrier.RDS')
+}else{
+  aot_carr <- aot_2018 %>%
+    group_by(OP_UNIQUE_CARRIER, MONTH) %>%
+    dplyr::summarise(canc_perc=mean(CANCELLED),
+              delay_perc=mean(ARR_DELAY>15, na.rm=TRUE),
+              delay_time=mean(ARR_DELAY[ARR_DELAY>15], na.rm=TRUE)) %>%
+    left_join(
+      aot_2018 %>%
+        filter(ARR_DELAY>15) %>%
+        group_by(OP_UNIQUE_CARRIER, MONTH) %>%
+        dplyr::summarise(carrier_delay=mean(CARRIER_DELAY, na.rm=TRUE)),
+      by=c('OP_UNIQUE_CARRIER','MONTH')) %>%
+    na.omit()
+  saveRDS(aot_carr, 'output/airline_on_time_carrier.RDS')
+}
+```
+
+```{r carrier info}
+carr_info <- aot_carr %>%
+  plot_ly(x=~1-canc_perc, y=~1-delay_perc, frame = ~MONTH, 
+          type = 'scatter', mode = 'markers',
+          size=~delay_time, sizes=c(10,35), 
+          color = ~OP_UNIQUE_CARRIER, colors = 'Paired',
+          marker=list(
+            sizemode='diameter',
+            opacity = 0.5
+            ),
+          hoverinfo = 'text',
+          text = ~paste('Carrier:', OP_UNIQUE_CARRIER,
+                        '<br>Non-Cancelled Rate:',1- percent(canc_perc),
+                        '<br>Non-Delayed Rate:', 1-percent(delay_perc),
+                        '<br>Average Delay Time:', signif(delay_time,3))) %>%
+  layout(title='Airlines On-Time Performance',
+         xaxis= list(title='Non-Cancelled Rate'),
+         yaxis= list(title='Non-Delayed Rate')) %>%
+  hide_legend()
+```
+
+```{r carrier delay data}
+df_delay <- aot_carr %>% gather('delay_time', 'carrier_delay', key='delay_type', value='delay_time')
+df_delay$delay_type <- revalue(df_delay$delay_type, 
+                               c('delay_time'='Total Delay', 'carrier_delay'='Carrier Delay'))
+```
+
+```{r carrier delay}
+carr_dely <- df_delay %>%
+  plot_ly(x=~delay_time, y=~ OP_UNIQUE_CARRIER, frame=~MONTH, type='scatter',
+          mode="markers", color=~ delay_type,
+          symbol=~delay_type,
+          marker = list(size = 9),
+          hoverinfo='text',
+          text=~paste('Type:', delay_type,
+                      '<br>Carrier:', OP_UNIQUE_CARRIER,
+                      '<br>Average Time:', signif(delay_time,3)))%>%
+  layout(title = 'Air Carrier Delay',
+         xaxis = list(title = 'Mean Delay Time'),
+         yaxis = list(title = 'Carrier',
+                      tickfont = list(
+                        size = 10
+                      )),
+         margin = list(l = 100)) %>%
+  hide_legend()
+```
+
+```{r carrier subplot}
+if(file.exists('output/Airport_on-time_performance.RDS')){
+  ontm_info <- readRDS('output/Airport_on-time_performance.RDS')
+}else{
+  ontm_info <- subplot(carr_dely, carr_info, nrows = 1, widths = c(0.3, 0.7), 
+                       titleX = TRUE, titleY = TRUE, margin=0.06) %>%
+    animation_opts(1000, redraw = FALSE) %>%
+    layout(margin = list(l = 10))
+  saveRDS(ontm_info, 'output/Airport_on-time_performance.RDS')
+}
+```
+
+```{r arpt data}
+if(file.exists('output/airline_on_time_airport.RDS')){
+  aot_arpt <- readRDS('output/airline_on_time_airport.RDS')
+}else{
+  apt_sub <- apt %>% 
+    filter(V4=='United States') %>%
+    mutate(ORIGIN=as.character(V5), Latitude=V7, Longitude=V8, City=as.character(V3)) %>%
+    select(ORIGIN, Latitude, Longitude, City)
+
+  aot_arpt <- aot %>%
+    group_by(ORIGIN) %>%
+    dplyr::summarise(departure_delay=mean(DEP_DELAY[DEP_DELAY>15], na.rm=TRUE),
+                     arrive_delay=mean(ARR_DELAY[ARR_DELAY>15], na.rm=TRUE),
+                     carrier_delay=mean(CARRIER_DELAY, na.rm=TRUE),
+                     weather_delay=mean(WEATHER_DELAY, na.rm=TRUE),
+                     NAS_delay=mean(NAS_DELAY, na.rm=TRUE),
+                     security_delay=mean(SECURITY_DELAY, na.rm=TRUE),
+                     late_aircraft_delay=mean(LATE_AIRCRAFT_DELAY, na.rm=TRUE)) %>%
+    left_join(apt_sub, by=c('ORIGIN')) %>%
+    mutate(
+      departure_level = cut(departure_delay, breaks = c(0,70,80,90,100,110,120,130,Inf), labels = F),
+      arrive_level = cut(arrive_delay, breaks = c(0,65,75,85,95,105,115,125,Inf), labels = F),
+      carrier_level = cut(carrier_delay, breaks = c(0,5,15,25,35,45,55,65,Inf), labels = F),
+      weather_level = cut(weather_delay, breaks = c(0,1,3,5,7,9,11,13,Inf), labels = F),
+      NAS_level = cut(NAS_delay, breaks = c(0,10,15,20,25,30,35,40,Inf), labels = F),
+      late_aircraft_level = cut(late_aircraft_delay, breaks = c(0,25,30,35,40,45,50,55,Inf), labels = F)
+    )
+  saveRDS(aot_arpt, 'output/airline_on_time_airport.RDS')
+}
+```
+
+```{r arpt info}
+if(file.exists('output/Airport_delay_status.RDS')){
+  arpt_info <- readRDS('output/Airport_delay_status.RDS')
+}else{
+arpt_info <- aot_arpt %>% 
+  plot_geo(lat = ~Latitude, lon = ~Longitude, mode='markers', colors='Blues',
+           marker=list(line = list(color = 'white',
+                                   width = 1),
+                       symbol='diamond')) %>%
+  add_markers(name = 'Departure Delay',
+              color = ~departure_level,
+              size = ~departure_level,
+              text = ~paste(ORIGIN, ',', City,
+                            '<br>Average Delay Time (min):', signif(departure_delay,3)),
+              hoverinfo = "text",
+              visible=TRUE) %>%
+  add_markers(name = 'Arrival Delay',
+              color = ~arrive_level,
+              size = ~arrive_level,
+              text = ~paste(ORIGIN, ',', City,
+                            '<br>Average Delay Time (min):', signif(arrive_delay,3)),
+              hoverinfo = "text",
+              visible=TRUE) %>%
+  add_markers(name = 'Carrier Delay',
+              color = ~carrier_level,
+              size = ~carrier_level,
+              text = ~paste(ORIGIN, ',', City,
+                            '<br>Average Delay Time (min):', signif(carrier_delay,3)),
+              hoverinfo = "text",
+              visible=TRUE) %>%
+  add_markers(name = 'Weather Delay',
+              color = ~weather_level,
+              size = ~weather_level,
+              text = ~paste(ORIGIN, ',', City,
+                            '<br>Average Delay Time (min):', signif(weather_delay,3)),
+              hoverinfo = "text",
+              visible=TRUE) %>%
+  add_markers(name = 'NAS Delay',
+              color = ~NAS_level,
+              size = ~NAS_level,
+              text = ~paste(ORIGIN, ',', City,
+                            '<br>Average Delay Time (min):', signif(NAS_delay,3)),
+              hoverinfo = "text",
+              visible=TRUE) %>% 
+  add_markers(name = 'Late Aircraft Delay',
+              color = ~late_aircraft_level,
+              size = ~late_aircraft_level,
+              text = ~paste(ORIGIN, ',', City,
+                            '<br>Average Delay Time (min):', signif(late_aircraft_delay,3)),
+              hoverinfo = "text",
+              visible=TRUE) %>%
+  layout(title = 'Airport Delay Status', 
+         geo = list(
+           scope = 'usa',
+           projection = list(type = 'albers usa'),
+           showland = TRUE,
+           landcolor = toRGB("Lavender"),
+           subunitcolor = toRGB("white"),
+           subunitwidth = 2),
+         legend=list(
+           font=list(
+             size=20
+           )
+         )) %>%
+  hide_colorbar()
+saveRDS(arpt_info, 'output/Airport_delay_status.RDS')
+}
+```
+
+```{r data clean}
+cust <- read_csv('output/combind_data.csv')
+cust$airline <- factor(cust$airline)
+cust$airline <- revalue(cust$airline, c('ALASKA AIRLINES'='AS',
+                        'AMERICAN AIRLINES'='AA',
+                        'DELTA AIR LINES'='DL',
+                        'ENVOY AIR'='MQ',
+                        'EXPRESSJET AIRLINES'='EV',
+                        'FRONTIER AIRLINES'='F9',
+                        'HAWAIIAN AIRLINES'='HA',
+                        'JETBLUE AIRWAYS'='B6',
+                        'SKYWEST AIRLINES'='OO',
+                        'SOUTHWEST AIRLINES'='WN',
+                        'SPIRIT AIRLINES'='NK',
+                        'UNITED AIRLINES'='UA')) %>%
+  as.character()
+cust <- cust %>% 
+  mutate(`Carrier`=airline,
+               `Missing Luggage`=missing.luggage.per.1000.passangers,
+               `Customer Complaint`= `customer complaint`,
+               `Involuntary Denied Boarding`=`Involuntary denied boarding.per.1000.passangers`,
+               `All Denied Boarding`=`All denied boarding .per.1000.passangers`) %>%
+  select(`Carrier`:`All Denied Boarding`)
+```
+
+```{r airl summ}
+airl_summ <- aot_2018 %>%
+  mutate(Carrier=OP_UNIQUE_CARRIER) %>%
+  select(Carrier, ARR_DELAY, DEP_DELAY, ORIGIN_CITY_NAME, DEST_CITY_NAME) %>%
+  filter(Carrier %in% cust$Carrier) %>%
+  left_join(cust, by='Carrier')
+saveRDS(airl_summ, 'output/Airline_summary.RDS')
+```
+
+```{r head map}
+#aot_2018 <- readRDS('output/airline_on_time_2018.RDS')
+armp <- aot_2018 %>% 
+  mutate(city1 = ORIGIN_CITY_NAME, city2 = DEST_CITY_NAME) %>%
+  select(city1, city2, ORIGIN, DEST)
+apt_sub <- apt %>% 
+    filter(V4=='United States') %>%
+    mutate(lati_city1=V7, long_city1=V8, ORIGIN=as.character(V5)) %>%
+    select(lati_city1, long_city1, ORIGIN)
+armp <- armp %>%
+  left_join(apt_sub, by='ORIGIN')
+apt_sub <- apt_sub %>% 
+  mutate(lati_city2=lati_city1, long_city2=long_city1, DEST=ORIGIN) %>%
+  select(DEST, lati_city2, long_city2)
+armp <- armp %>%
+  left_join(apt_sub, by='DEST') %>%
+  select(-ORIGIN, -DEST) %>%
+  distinct(city1, city2, .keep_all = TRUE)
+saveRDS(armp, 'output/Airline_map.RDS')
+```
+

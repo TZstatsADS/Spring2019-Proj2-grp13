@@ -22,7 +22,7 @@ library("ggplot2")
 library("reshape2")
 library("geosphere")
 library(GGally)
-library("parcoords")
+#library("parcoords")
 library("stringr")
 #devtools::install_github("timelyportfolio/parcoords")
 
@@ -60,6 +60,9 @@ state.names <- unique(airport.data$Event.State)
 #Customer Data
 data_customer <- read.csv("../output/combind_data.csv")
 
+#Summary
+arln_summ <-readRDS('../output/Airline_summary.RDS')
+
 #####################################################################
 # Define Levels:
 #####################################################################
@@ -76,6 +79,9 @@ level_Arrive.map <- levels(unique(Air_map$city2))
 level_Depart.delay <- sort(unique(aot.delay$ORIGIN_CITY_NAME))
 level_Arrive.delay <- sort(unique(aot.delay$DEST_CITY_NAME))
 
+# Summary:
+orig <- arln_summ %>% select(ORIGIN_CITY_NAME) %>% unique() 
+dest <- arln_summ %>% select(DEST_CITY_NAME) %>% unique() 
 
 #####################################################################
 # Define Tabs:
@@ -218,6 +224,33 @@ tab3 <- navbarMenu("Customer Satisfaction",
                    
 )
 
+tab4 <- tabPanel(
+  title = 'Summary',
+  icon = icon('thumbs-up'),
+  sidebarLayout(
+    sidebarPanel(
+      selectInput('Orig', label = h5('Origin City'),
+                  choices = c('All'='All', orig$ORIGIN_CITY_NAME %>% sort()), 
+                  selected = 0),
+      uiOutput('dest'),
+      selectInput('Con', label = h5('Most Concern'),
+                  choices = c('Arrival Delay'='ARR_DELAY',
+                              'Departure Delay'='DEP_DELAY',
+                              'Missing Luggage',
+                              'Customer Complaint',
+                              'Involuntary Denied Boarding',
+                              'All Denied Boarding'), 
+                  selected = NULL,
+                  multiple = TRUE),
+      sliderInput('Wgt', label = h5('Concern Range'), min = 1., max = 5., 
+                  value = 1., step = .01)
+    ),
+    mainPanel(
+      plotlyOutput('summary')
+    )
+  )  
+)
+
 #####################################################################
 # Finalization:
 #####################################################################
@@ -232,6 +265,7 @@ ui <- fluidPage(theme= "bootstrap.min-copy.css",
                            tab1,
                            tab2,
                            accident.tab,
-                           tab3))
+                           tab3,
+                           tab4))
 
 
