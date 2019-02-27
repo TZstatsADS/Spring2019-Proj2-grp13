@@ -30,6 +30,8 @@ All team members contributed equally in all stages of this project. All team mem
 
 **Xueqi Ren** works on Fares panel with Jingwen Wang, including cleaning data and plotting carrier Gantt Chart in the Fares panel.
 
+**Yu Yao** works on Customer Satisfaction Panel with Xishi Chen, including cleaning and visualising data in the Customer Satisfaction Panel.
+
 ## Project Demonstration:
 
 + Interactive Map:
