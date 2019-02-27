@@ -1,34 +1,21 @@
-# Project 2: Shiny App Development Version 2.0
+# Project 2: Shiny App Development Version: AirPlan2.0
 
-### [Project Description](doc/project2_desc.md)
+Hello Travelers. Welcome to our brand new Airline Information App: AirPlan2.0.
 
-![screenshot](doc/screenshot2.png)
 
-In this second project of GR5243 Applied Data Science, we develop a version 2.0 of an *Exploratory Data Analysis and Visualization* shiny app on a topic of your choice using [NYC Open Data](https://opendata.cityofnewyork.us/) or U.S. government open data released on the [data.gov](https://data.gov/) website. See [Project 2 Description](doc/project2_desc.md) for more details.  
+**Project Summary**:
+In this second project of GR5243 Applied Data Science, we develop a version 2.0 of an *Exploratory Data Analysis and Visualization* shiny app on a topic 'Airlines'.
 
-The **learning goals** for this project is:
+Concerning about planning your trip wisely? AirPlan 2.0 will help our users to effectively review the statistics of the airline industry. We visualize complex historical data into insights towards the airline industry. Fares, on-time performance, accident stuatus and customer satisfication are selected as criteria for users to have a snapshot on the overall industry and to compare among different airlines.  
 
-- business intelligence for data science
-- study legacy codes and further development
-- data cleaning
-- data visualization
-- systems development/design life cycle
-- shiny app/shiny server
-
-*The above general statement about project 2 can be removed once you are finished with your project. It is optional.
-
-## Project Title Lorem ipsum dolor sit amet
-Term: Spring 2019
-
-+ Team #
++ Team # 13
 + **Projec title**: + Team members
-	+ team member 1
-	+ team member 2
-	+ team member 3
-	+ team member 4
-	+ team member 5
-
-+ **Project summary**: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+	+ Ren, Claire xr2134@columbia.edu
+	+ Wang, Jingwen jw3667@columbia.edu
+	+ Yao, Yu yy2906@columbia.edu
+	+ Yin, Chao cy2507@columbia.edu
+	+ Zhang, Yue yz3383@columbia.edu
+	+ Chen, Xishi xc2455@columbia.edu
 
 + **Contribution statement**: ([default](doc/a_note_on_contributions.md)) All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement. 
 
