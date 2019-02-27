@@ -6,10 +6,10 @@ Hello Travelers. Welcome to our brand new Airline Information App: AirPlan2.0.
 **Project Summary**:
 In this second project of GR5243 Applied Data Science, we develop a version 2.0 of an *Exploratory Data Analysis and Visualization* shiny app on a topic 'Airlines'.
 
-Concerning about planning your trip wisely? AirPlan 2.0 will help our users to effectively review the statistics of the airline industry. We visualize complex historical data into insights towards the airline industry. Fares, on-time performance, accident stuatus and customer satisfication are selected as criteria for users to have a snapshot on the overall industry and to compare among different airlines.  
+Concerning about planning your trip wisely? AirPlan 2.0 will help our users to effectively review the statistics of the airline industry. We visualize complex historical data into insights towards the airline industry. Fares, on-time performance, accident, and customer satisfaction are selected as criteria for users to have a snapshot of the overall industry and to compare among different airlines.
 
 + Team # 13
-+ **Projec title**: + Team members
++ **Project title**: + Team members
 	+ Ren, Claire xr2134@columbia.edu
 	+ Wang, Jingwen jw3667@columbia.edu
 	+ Yao, Yu yy2906@columbia.edu
