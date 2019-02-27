@@ -37,7 +37,7 @@ Concerning about planning your trip wisely? AirPlan 2.0 will help our users to e
 <p align="center">
 <img src="doc/figs/On_time.png" width="700">
 
-+ Accident Status:
++ Accident Statistics:
 
 <p align="center">
 <img src="doc/figs/Accident.png" width="700">
