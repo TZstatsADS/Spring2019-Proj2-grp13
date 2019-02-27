@@ -7,7 +7,7 @@ options(warn = FALSE)
 
 # Library:
 packages.used=c("tidyverse", "data.table","formattable","dplyr","rgdal","plyr","vistime",
-                "leaflet","plotly","shiny","shinythemes","maps","shinyWidgets","rsconnect","ggmap")
+                "leaflet","plotly","shiny","shinythemes","maps","shinyWidgets","ggmap","DT")
 # check packages that need to be installed.
 packages.needed=setdiff(packages.used, 
                         intersect(installed.packages()[,1], 
@@ -22,10 +22,10 @@ library(tidyverse)
 library(data.table)
 library(plotly)
 library(formattable)
-library(plyr)
 library(dplyr)
 library(rgdal)
-library(vistime)
+library(plyr)
+
 
 ## Visualization:
 library(leaflet)
@@ -34,12 +34,17 @@ library(shinythemes)
 library(maps)
 library(shinyWidgets)
 library(DT)
-library(rsconnect)
 library(ggmap)
 library("base64enc")
 library("ggplot2")
 library("reshape2")
 library("geosphere")
+library(GGally)
+#library("parcoords")
+library("stringr")
+library(htmltools)
+library(vistime)
+#devtools::install_github("timelyportfolio/parcoords")
 
 ############################################################ 
 # Read Data
@@ -77,7 +82,7 @@ arln_summ <-readRDS('../output/Airline_summary.RDS')
 ############################################################
 # Define levels
 ############################################################
-# Route Map & Fare:
+# Route Fare:
 level_Depart <- levels(Airfare$city1)
 level_Arrive <- levels(Airfare$city2)
 
@@ -136,7 +141,8 @@ shinyServer(function(input, output,session) {
       markerColor = "blue")
     
     #add marker for dest in the map
-    map <- map %>% addAwesomeMarkers(lng = ~long_city2, lat = ~lati_city2, icon=icons, layerId = ~city2) 
+    map <- map %>% addAwesomeMarkers(lng = ~long_city2, lat = ~lati_city2, icon=icons, layerId = ~city2, label = ~htmlEscape(city2))
+    
     #load lon and lat 
     flows <- gcIntermediate(select(sub_data, long_city1, lati_city1), 
                             select(sub_data, long_city2, lati_city2), 
@@ -144,15 +150,8 @@ shinyServer(function(input, output,session) {
     #add polylines connecting origin and destination 
     map <- map %>% 
       addPolylines(data = flows,color = "grey",weight = 2,
-                   dashArray = "5, 5") #color= colors,fillOpacity = 1 weight = data$frequency/5) 
+                   dashArray = "5, 5") 
   })
-  
-
-  
-  #observeEvent(input$air_map_marker_mouseout, {
-  #leafletProxy("air_map") %>%
-  #clearPopups()
-  #})
   
   
   # ######################## 
@@ -229,7 +228,7 @@ shinyServer(function(input, output,session) {
       start = aot_Basic$start,
       end = aot_Basic$end
     )
-    vistime(data, groups="Name", events="Name", title="Cheapest Carrier")
+    vistime::vistime(data, groups="Name", events="Name", title="Cheapest Carrier")
   })
 
   ########################
