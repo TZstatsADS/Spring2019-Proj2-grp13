@@ -16,7 +16,6 @@ library(maps)
 library(shinyWidgets)
 library(DT)
 library(ggmap)
-library(vistime)
 library("base64enc")
 library("ggplot2")
 library("reshape2")
@@ -25,6 +24,7 @@ library(GGally)
 #library("parcoords")
 library("stringr")
 library(htmltools)
+library(vistime)
 #devtools::install_github("timelyportfolio/parcoords")
 
 
@@ -35,34 +35,34 @@ library(htmltools)
 # Read Data
 ############################################################ 
 ## Map:
-# Map:
-Air_map <- readRDS("../output/Airline_map.RDS")
+#Map:
+Air_map <- readRDS("Airline_map.RDS")
 Air_map <- na.omit(Air_map)
 Air_map$city1 <- as.factor(Air_map$city1)
 Air_map$city2 <- as.factor(Air_map$city2)
 
 ## Fares:
-carrierLg <- data.frame(read.csv('../data/carrier_lg.csv', header = TRUE))
-carrierLow <- data.frame(read.csv('../data/carrier_low.csv', header = TRUE))
-Airfare <- readRDS("../output/Airfare_2008.RDS")
+carrierLg <- data.frame(read.csv('carrier_lg.csv', header = TRUE))
+carrierLow <- data.frame(read.csv('carrier_low.csv', header = TRUE))
+Airfare <- readRDS("Airfare_2008.RDS")
 
 ## Delay
-aot.delay <- readRDS("../output/airline_on_time_2018.RDS")
-map.delay.plot <-readRDS("../output/Airport_delay_status.RDS")
+aot.delay <- readRDS("airline_on_time_2018.RDS")
+aot_arpt <- readRDS('airline_on_time_airport.RDS')
 
 ## Accident Data
-airport.data <- read.csv("../output/accident_state.csv")
-month.data <- read.csv("../output/accident_month.csv")
-aircraft.make <- read.csv("../output/accident_aircraft.csv")
-operator <- read.csv("../output/accident_operator.csv")
-accident.reason <- read.csv("../output/accident_reason.csv")
+airport.data <- read.csv("accident_state.csv")
+month.data <- read.csv("accident_month.csv")
+aircraft.make <- read.csv("accident_aircraft.csv")
+operator <- read.csv("accident_operator.csv")
+accident.reason <- read.csv("accident_reason.csv")
 state.names <- unique(airport.data$Event.State)
 
 #Customer Data
-data_customer <- read.csv("../output/combind_data.csv")
+data_customer <- read.csv("combind_data.csv")
 
 #Summary
-arln_summ <-readRDS('../output/Airline_summary.RDS')
+arln_summ <-readRDS('Airline_summary.RDS')
 
 #####################################################################
 # Define Levels:
@@ -152,11 +152,23 @@ tab2<- navbarMenu("On-Time Performance",
                   ,
                   
                   tabPanel("Cause of Delay Based on Airports",
+                           sidebarLayout(
+                             sidebarPanel(
+                               selectInput("Delay.resn", label = h5("Delay Types"),
+                                           choices = c('Departure Delay'='departure',
+                                                       'Arrival Delay'='arrive',
+                                                       'Carrier Delay'='carrier',
+                                                       'Weather Delay'='weather',
+                                                       'NAS Delay'='NAS',
+                                                       'Late Aircraft Delay'='late_aircraft'),
+                                           selected = 0),
+                               width = 3
+                             ),
                            mainPanel(
-                             plotlyOutput("map.delay",width = "150%",height = "600px"),
+                             plotlyOutput("map.delay",width = "100%",height = "600px"),
                              tags$a(href = "https://transtats.bts.gov/ONTIME/","2018 Source:https://transtats.bts.gov/ONTIME/")
                            )
-                  ))
+                  )))
 
 # Accident tab
 accident.tab <-   navbarMenu("Accident",

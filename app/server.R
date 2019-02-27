@@ -7,7 +7,7 @@ options(warn = FALSE)
 
 # Library:
 packages.used=c("tidyverse", "data.table","formattable","dplyr","rgdal","plyr","vistime",
-                "leaflet","plotly","shiny","shinythemes","maps","shinyWidgets","ggmap")
+                "leaflet","plotly","shiny","shinythemes","maps","shinyWidgets","ggmap","DT")
 # check packages that need to be installed.
 packages.needed=setdiff(packages.used, 
                         intersect(installed.packages()[,1], 
@@ -35,7 +35,6 @@ library(maps)
 library(shinyWidgets)
 library(DT)
 library(ggmap)
-library(vistime)
 library("base64enc")
 library("ggplot2")
 library("reshape2")
@@ -44,6 +43,7 @@ library(GGally)
 #library("parcoords")
 library("stringr")
 library(htmltools)
+library(vistime)
 #devtools::install_github("timelyportfolio/parcoords")
 
 ############################################################ 
@@ -51,33 +51,33 @@ library(htmltools)
 ############################################################ 
 ## Map:
 # Map:
-Air_map <- readRDS("../output/Airline_map.RDS")
+Air_map <- readRDS("Airline_map.RDS")
 Air_map <- na.omit(Air_map)
 Air_map$city1 <- as.factor(Air_map$city1)
 Air_map$city2 <- as.factor(Air_map$city2)
 
 ## Fares:
-carrierLg <- data.frame(read.csv('../data/carrier_lg.csv', header = TRUE))
-carrierLow <- data.frame(read.csv('../data/carrier_low.csv', header = TRUE))
-Airfare <- readRDS("../output/Airfare_2008.RDS")
+carrierLg <- data.frame(read.csv('carrier_lg.csv', header = TRUE))
+carrierLow <- data.frame(read.csv('carrier_low.csv', header = TRUE))
+Airfare <- readRDS("Airfare_2008.RDS")
 
 ## Delay
-aot.delay <- readRDS("../output/airline_on_time_2018.RDS")
-map.delay.plot <-readRDS("../output/Airport_delay_status.RDS")
+aot.delay <- readRDS("airline_on_time_2018.RDS")
+aot_arpt <- readRDS('airline_on_time_airport.RDS')
 
 ## Accident Data
-airport.data <- read.csv("../output/accident_state.csv")
-month.data <- read.csv("../output/accident_month.csv")
-aircraft.make <- read.csv("../output/accident_aircraft.csv")
-operator <- read.csv("../output/accident_operator.csv")
-accident.reason <- read.csv("../output/accident_reason.csv")
+airport.data <- read.csv("accident_state.csv")
+month.data <- read.csv("accident_month.csv")
+aircraft.make <- read.csv("accident_aircraft.csv")
+operator <- read.csv("accident_operator.csv")
+accident.reason <- read.csv("accident_reason.csv")
 state.names <- unique(airport.data$Event.State)
 
 #Customer Data
-data_customer <- read.csv("../output/combind_data.csv")
+data_customer <- read.csv("combind_data.csv")
 
 ## Summary
-arln_summ <-readRDS('../output/Airline_summary.RDS')
+arln_summ <-readRDS('Airline_summary.RDS')
 
 ############################################################
 # Define levels
@@ -228,7 +228,7 @@ shinyServer(function(input, output,session) {
       start = aot_Basic$start,
       end = aot_Basic$end
     )
-    vistime(data, groups="Name", events="Name", title="Cheapest Carrier")
+    vistime::vistime(data, groups="Name", events="Name", title="Cheapest Carrier")
   })
 
   ########################
@@ -320,7 +320,33 @@ shinyServer(function(input, output,session) {
   })
 
   # Map: Depay on Airports & Reasons
-  output$map.delay <- renderPlotly(map.delay.plot)
+  output$map.delay <- renderPlotly({
+    arpt_sub <- aot_arpt %>%
+      select(ORIGIN, Latitude, Longitude, City, starts_with(input$Delay.resn))
+    colnames(arpt_sub) <- c('id','lat','long','city','time','level')
+    
+    arpt_info <- arpt_sub %>%
+      plot_geo(lat = ~lat, lon = ~long, mode='markers', colors='Blues',
+               marker=list(line = list(color = 'white',
+                                       width = 1),
+                           symbol='diamond')) %>%
+      add_markers(color = ~level,
+                  size = ~level,
+                  text = ~paste(id, ',', city,
+                                '<br>Average Delay Time (min):', signif(time,3)),
+                  hoverinfo = "text",
+                  visible=TRUE) %>%
+      layout(title = 'Airport Delay Status', 
+             geo = list(
+               scope = 'usa',
+               projection = list(type = 'albers usa'),
+               showland = TRUE,
+               landcolor = toRGB("Lavender"),
+               subunitcolor = toRGB("white"),
+               subunitwidth = 2)) %>%
+      hide_colorbar() %>%
+      hide_legend()
+  })
   
   ############################################################
   # Accident Statistics
