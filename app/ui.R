@@ -15,7 +15,6 @@ library(shinythemes)
 library(maps)
 library(shinyWidgets)
 library(DT)
-library(rsconnect)
 library(ggmap)
 library("base64enc")
 library("ggplot2")
@@ -24,6 +23,7 @@ library("geosphere")
 library(GGally)
 #library("parcoords")
 library("stringr")
+library(htmltools)
 #devtools::install_github("timelyportfolio/parcoords")
 
 
@@ -89,18 +89,21 @@ dest <- arln_summ %>% select(DEST_CITY_NAME) %>% unique()
 
 # Map Tab
 tab.map <- tabPanel("Route Map", icon=icon("map-o"),
-                    sidebarLayout(
-                      sidebarPanel(
-                        selectInput("Depart.map", label = h5("Departure From"), 
-                                    choices = level_Depart.map, 
-                                    selected = 0)
-                        ,
-                        uiOutput("arrive.map")
-                      ),
-                      # Show two panels
-                      mainPanel(
-                        leafletOutput("air_map", width="100%", height = "500px")
-                      )))
+                        sidebarLayout(
+                          sidebarPanel(
+                            selectInput("Depart.map", label = h5("Departure From"), 
+                                        choices = c("New York, NY"=level_Depart.map[222],
+                                                    level_Depart.map[which(level_Depart.map!="New York, NY")]),
+                                        selected = 0)
+                            ,
+                            uiOutput("arrive.map")
+                          ),
+                          # Show two panels
+                          mainPanel(
+                            leafletOutput("air_map", width="100%", height = "500px"),
+                            br(),
+                            includeMarkdown('intro.md')
+                          )))
 
 
 # Fares Tab
