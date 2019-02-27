@@ -462,8 +462,8 @@ shinyServer(function(input, output,session) {
       # generate an rnorm distribution and plot it
       carr_name <- input$carrier
       carr_row <- data_customer$airline %in% carr_name
-      carr_data <- data_customer[carr_row, c(2,3,4)]
-      ggparcoord(carr_data, columns = 2:3, groupColumn = 1)
+      carr_data <- data_customer[carr_row, c(2,3,4,5,6)]
+      ggparcoord(carr_data, columns = 2:5, groupColumn = 1)+geom_line(size=2)+theme_bw()+theme(panel.border = element_blank())
     }
   })
   
@@ -471,33 +471,33 @@ shinyServer(function(input, output,session) {
   output$luggageplot=renderPlot({
     ggplot(data_customer)+
       layer(mapping = aes(x = fct_reorder(airline,`missing.luggage.per.1000.passangers`), y =`missing.luggage.per.1000.passangers`),
-            params = list(fill = "lightblue"),
+            params = list(fill = "pink"),
             geom = "bar",stat = "identity", position = "identity")+
-      theme(axis.text.x = element_text(size = 8,hjust=1,vjust = 1, angle = 20))+
+      theme(axis.text.x = element_text(size = 8,hjust=1,vjust = 1, angle = 20),panel.border = element_blank())+
       labs(x='airline')
   })
   
   output$complaintplot=renderPlot({
     ggplot(data_customer)+
       layer(mapping = aes(x = fct_reorder(airline,`customer.complaint`), y =`customer.complaint`),
-            params = list(fill = "lightgreen"),
+            params = list(fill = "lightblue"),
             geom = "bar",stat = "identity", position = "identity")+
-      theme(axis.text.x = element_text(size = 8,hjust=1,vjust = 1, angle = 20))+
+      theme(axis.text.x = element_text(size = 8,hjust=1,vjust = 1, angle = 20),panel.border = element_blank())+
       labs(x='airline')
     
   })
   
   output$voluntaryplot=renderPlot({
-    ggplot(data_customer)+
-      geom_point(mapping=aes(x=airline,y=Voluntary.permillage,color='voluntary'))+
-      theme(axis.text.x = element_text(size = 8,hjust=1,vjust = 1, angle = 45))+
+    ggplot(data_customer,aes(x=airline,y=All.permillage))+
+      geom_point(color="lightgreen",size=5)+
+      theme(axis.text.x = element_text(size = 8,hjust=1,vjust = 1, angle = 45),panel.border = element_blank())+
       labs(x='airline')
   })
   
   output$involuntaryplot=renderPlot({
-    ggplot(data_customer)+
-      geom_point(mapping=aes(x=airline,y=Involuntary.permillage,color='involuntary'))+
-      theme(axis.text.x = element_text(size = 8,hjust=1,vjust = 1, angle = 45))+
+    ggplot(data_customer,aes(x=airline,y=Involuntary.permillage))+
+      geom_point(color='grey',size=5)+
+      theme(axis.text.x = element_text(size = 8,hjust=1,vjust = 1, angle = 45),panel.border = element_blank())+
       labs(x='airline')
   })
   
