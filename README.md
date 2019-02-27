@@ -10,7 +10,7 @@ In this second project of GR5243 Applied Data Science, we develop a version 2.0 
 Concerning about planning your trip wisely? AirPlan 2.0 will help our users to effectively review the statistics of the airline industry. We visualize complex historical data into insights towards the airline industry. Fares, on-time performance, accident, and customer satisfaction are selected as criteria for users to have a snapshot of the overall industry and to compare among different airlines.
 
 ## Team Members：
-- Ren, Claire xr2134@columbia.edu
+- Ren, Xueqi xr2134@columbia.edu
 - Wang, Jingwen jw3667@columbia.edu
 - Yao, Yu yy2906@columbia.edu
 - Yin, Chao cy2507@columbia.edu
@@ -24,11 +24,11 @@ All team members contributed equally in all stages of this project. All team mem
 
 **Jingwen Wang** plots Trend Line Chart part in the Fares Panel, works on Shiny Design of the Fares and On-time Performance Channel, and designs the Interactive Map.
 
-
 **Yue Zhang** mainly focus on the Accident Panel, including accident data preprocseeing and explorative data analysis of accident data.
 
-
 **Xishi Chen** works on Customer Satisfaction Panel with Yu Yao together, including collecting, cleaning, manipulating and visualising data on Shiny.
+
+**Xueqi Ren** works on Fares panel with Jingwen Wang, including cleaning data and plotting carrier Gantt Chart in the Fares panel.
 
 ## Project Demonstration:
 
