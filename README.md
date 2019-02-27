@@ -24,26 +24,32 @@ Concerning about planning your trip wisely? AirPlan 2.0 will help our users to e
 
 + Interactive Map:
 
-<img src="doc/figs/interactive_map.png" width="700">
+<p align="center">
+  <img src="doc/figs/interactive_map.png" width="700">
 
 + Fares:
 
+<p align="center">
 <img src="doc/figs/Fares.png" width="700">
 
 + On-time Performance:
 
+<p align="center">
 <img src="doc/figs/On_time.png" width="700">
 
 + Accident Status:
 
+<p align="center">
 <img src="doc/figs/Accident.png" width="700">
 
 + Customer Satisfaction:
 
+<p align="center">
 <img src="doc/figs/Customer_Sat.png" width="700">
 
 + Summary:
 
+<p align="center">
 <img src="doc/figs/Summary.png" width="700">
 
 
