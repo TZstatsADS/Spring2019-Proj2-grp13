@@ -10,7 +10,7 @@ Concerning about planning your trip wisely? AirPlan 2.0 will help our users to e
 
 + Team # 13
 + **Projec title**: + Team members
-	+ Ren, Claire xr2134@columbia.edu
+	+ Ren, Xueqi xr2134@columbia.edu
 	+ Wang, Jingwen jw3667@columbia.edu
 	+ Yao, Yu yy2906@columbia.edu
 	+ Yin, Chao cy2507@columbia.edu
