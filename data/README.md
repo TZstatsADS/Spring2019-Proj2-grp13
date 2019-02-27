@@ -26,7 +26,7 @@ of accidents from 1978 to 2018. For each record, details such as Event.Local.Dat
 
 Link:https://www.transportation.gov/airconsumer/air-travel-consumer-reports-2018
 
-Description: original dataset covers the air travel consumer report from every month in Year 2018. For each month report, missing luggages number, comsumer complaints, Involuntary and voluntary denied boarding numbers by most common 12 airlines in the US are included. In this project, we mainly use the data from the second half of 2018.
+Description: original dataset covers the air travel consumer report from every month in Year 2018. For each month report, missing luggages number(per 1000 passengers), comsumer complaints, Involuntary and voluntary denied boarding numbers by most common 12 airlines in the US are included. In this project, we mainly use the data from the second half of 2018.
 
 
 
