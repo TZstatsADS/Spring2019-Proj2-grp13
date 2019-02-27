@@ -17,8 +17,10 @@ Concerning about planning your trip wisely? AirPlan 2.0 will help our users to e
 	+ Zhang, Yue yz3383@columbia.edu
 	+ Chen, Xishi xc2455@columbia.edu
 
-+ **Contribution statement**: ([default](doc/a_note_on_contributions.md)) All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement. 
++ **Contribution statement**: 
+All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement. 
 
+Yue Zhang mainly focus on accident panel, including accident data preprocseeing and explorative data analysis of accident data.
 
 **Demonstration**:
 
