@@ -7,7 +7,7 @@ options(warn = FALSE)
 
 # Library:
 packages.used=c("tidyverse", "data.table","formattable","dplyr","rgdal","plyr","vistime",
-                "leaflet","plotly","shiny","shinythemes","maps","shinyWidgets","ggmap","DT")
+                "leaflet","plotly","shiny","shinythemes","maps","shinyWidgets","ggmap")
 # check packages that need to be installed.
 packages.needed=setdiff(packages.used, 
                         intersect(installed.packages()[,1], 
@@ -35,6 +35,7 @@ library(maps)
 library(shinyWidgets)
 library(DT)
 library(ggmap)
+library(vistime)
 library("base64enc")
 library("ggplot2")
 library("reshape2")
