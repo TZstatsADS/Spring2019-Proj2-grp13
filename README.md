@@ -42,6 +42,11 @@ Concerning about planning your trip wisely? AirPlan 2.0 will help our users to e
 
 <img src="doc/figs/Customer_Sat.png" width="700">
 
++ Summary:
+
+<img src="doc/figs/Summary.png" width="700">
+
+
 
 
 Following [suggestions](http://nicercode.github.io/blog/2013-04-05-projects/) by [RICH FITZJOHN](http://nicercode.github.io/about/#Team) (@richfitz). This folder is orgarnized as follows.
